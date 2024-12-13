@@ -1,0 +1,17 @@
+{
+  "name": "marauder",
+  "version": "1.8",
+  "description": "I solemnly swear that i am up to no good",
+  "author": "Nick Rotas",
+  "main": "main.js", 
+  "dependencies": {
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . --platform=win32 --arch=x64 --icon=./icons/marauder.ico --out=../dist",
+    "build-mac": "electron-packager . marauder --platform=darwin --arch=x64 --icon=./icons/marauder.icns --out=./macinstaller", 
+    "build-linux": "electron-packager . marauder --platform=linux --arch=x64 --icon=./icons/marauder.png --out=./linuxinstaller"
+
+
+  }
+}

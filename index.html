@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>marauder</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link rel="stylesheet" href="media/glkote.css" type="text/css">
+  <link rel="stylesheet" href="media/dialog.css" type="text/css">
+  <style type="text/css">
+    body {
+      margin: 0px;
+    height: 100%;
+    overflow: hidden;
+
+    &::-webkit-scrollbar { 
+        display: none; 
+    }
+
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+    
+
+    #gameport {
+      position: absolute;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background: #94abbd;
+      margin: 0px;
+      
+    }
+
+    #welcomeMessage {
+      width: 2000px;
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-family: 'Georgia', Times, serif;
+      font-size: 2em;
+      color: black;
+    }
+
+    #selectFileButton {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px; 
+      height: 80px; 
+      background-image: url('./icons/wand.png');
+      background-size: cover;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #hoverText {
+    position: absolute;
+    bottom: 28%;
+    left: 45%;
+    opacity: 0;
+    font-family: 'patrickhand';
+    font-style: italic;
+    transition: opacity 1s ease-in-out;
+    }
+
+    #selectFileButton:hover + #hoverText {
+    opacity: 1;
+    }
+
+ 
+
+    /*styles for "click here"*/
+    .clickable {
+      color: black;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .clickable:hover {
+      background-color: #5886a9; 
+    }
+
+    #loadingMessage {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px;
+      font-size: 16px;
+      display: none;
+      color: #555;
+    }
+
+
+    #mapContainer {
+    position: absolute;
+    width: 100%; 
+    height: 100%;
+    border: 1px solid #94abbd;
+    padding: 10px;
+    background-color: #94abbd;
+    margin-bottom: 10px;
+    overflow: scroll;
+ 
+    &::-webkit-scrollbar { 
+        display: none; 
+    }
+
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+    }
+   
+    .indicator {
+      display: none;
+      position: absolute;
+      top: 1px;
+      right: -8px;
+      width: 28px;
+      height: 20px;
+      background-image: url('./icons/cc.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 2;
+    }
+
+    @font-face {
+      font-family: 'gawaa';
+      src: url('./fonts/gawaa.otf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'patrickhand';
+      src: url('./fonts/patrickhand.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    #toggleViewButton {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-family: 'gawaa', sans-serif;
+      background-color: #2ca9bc;
+      color: black;
+      border: 2px solid black;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      z-index: 10;
+    }
+
+    #toggleViewButton:hover {
+      background-color: #6dd1e0;
+    }
+
+    #layerToggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      background: #f1f1f1;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    #mapSvg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    /*prob not gon use it*/
+    #mapTitle {
+      top: 0px;
+      font-size: 18px;
+      text-align: center;
+      font-family: 'Georgia', Times, serif;
+    }
+
+    /* Zoom buttons */
+    #zoomContainer {
+      position: fixed;
+      top: 100px; /* Positioned below the Show Map button */
+      right: 10px;
+      display: flex;
+      gap: 10px; /* Space between the buttons */
+      z-index: 10;
+    }
+
+    #saveLoadContainer { 
+    position: fixed;
+    top: 150px; 
+    right: 10px;
+    display: flex;
+    gap: 10px; 
+    height:auto;
+    }   
+
+    #zoomInButton, #zoomOutButton {
+      width: 40px;
+      height: 40px;
+      background-size: cover;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #zoomInButton {
+      background-image: url('./icons/zoomIn.png'); 
+    }
+
+    #zoomOutButton {
+      background-image: url('./icons/zoomOut.png'); 
+    }
+    
+    #saveButton, #loadButton {
+    width: 40px;
+    height: 40px;
+    background-size: cover; 
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s; 
+    }
+
+    #saveButton {
+        background-image: url('./icons/savemap.png'); 
+    }
+
+    #loadButton {
+        background-image: url('./icons/loadmap.png'); 
+    }
+
+    #clearMapContainer {
+      position: fixed;
+      bottom: 5%; 
+      right: 10px;
+      z-index: 10;
+    }
+
+    #clearMapButton {
+      width: 40px;
+      height: 40px;
+      background-size: cover;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+
+    #clearMapButton {
+        background-image: url('./icons/clearmap.svg'); 
+    }
+
+    #addRoomModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  font-family: 'gawaa', sans-serif;
+  font-size: 22px;
+  text-align: center;
+}
+
+#addRoomButton {
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  background-size: cover;
+  background-image: url('./icons/addroom.png'); 
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tooltip-button {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip-button:hover::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -30px; 
+  left: 25%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75); 
+  color: white; 
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px; 
+  font-family: 'gawaa', sans-serif;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0; 
+  transition: opacity 0.3s; 
+}
+
+.tooltip-button:hover::before {
+  opacity: 1; 
+}
+
+
+
+
+#cancelLineCreationButton {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 40px;
+    height: 40px; 
+    background-image: url('./icons/cancel.svg'); 
+    background-size: cover;
+    background-color: transparent; 
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s; 
+  }
+
+  #cancelLineCreationButton:hover {
+    background-color: #5785a8; 
+  }
+
+  #logo {
+  display: none;
+  position: absolute;
+  bottom:1%;
+  left:1%;
+}
+
+#logo img {
+  width: 99%; 
+  height: auto; 
+}
+
+#infoMessage {
+  
+
+      display: none; 
+      position: absolute;
+      top: 20%;
+      left: 70%;
+      transform: translateX(-50%);
+      text-align: left;
+      font-style: italic;
+      font-family: 'Georgia', Times, serif;
+      font-size: 20px;
+      color: black;
+    }
+
+    #backButton {
+      display: none; 
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 40px;
+      height: 40px;
+      background-image: url('./icons/backarrow.png');
+      background-size: cover;
+      background-color: transparent;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.3s; 
+  }
+
+  #backButton:hover {
+    background-color: #5886a9; 
+  }
+
+  </style>
+  <script src="lib/jquery-1.12.4.min.js" type="text/javascript"></script>
+  <script src="lib/glkote.min.js" type="text/javascript"></script>
+  <script src="lib/quixe.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    game_options = {
+      use_query_story: false,
+      log_execution_time: true,
+      set_page_title: true
+    };
+  </script>
+</head>
+<body>
+  <div id="gameport">
+    <div id="windowport">
+      <noscript>
+        <hr>
+        <p>You'll need to turn on Javascript in your web browser to play this game.</p>
+        <hr>
+      </noscript>
+    </div>
+    <div id="errorpane" style="display:none;">
+      <div id="errorcontent">...</div>
+    </div>
+  </div>
+
+
+  
+ <!-- Welcome Message -->
+ <div id="welcomeMessage">
+  <b> Welcome to Marauder!</b><br><br><br>
+  Tap the wand to start playing or <span class="clickable" id="moreInfo">click here</span> to discover the features.
+</div>
+
+<!-- Select File Button / Wand Icon -->
+<button id="selectFileButton"></button>
+<div id="hoverText">"I solemnly swear that i am up to no good"</div>
+
+
+<!-- Information Message -->
+<div id="infoMessage">
+  
+
+</div>
+
+<div id="logo">
+  <img src="./icons/animatedtext.gif" alt="logo">
+</div>
+
+
+<!-- Back Arrow Button -->
+<button id="backButton"></button>
+
+
+  <button id="toggleViewButton" style="display: none;">Show Map</button>
+  <select id="layerToggle" style="display: none;">
+    <option value="0">Layer -5</option>
+    <option value="1">Layer -4</option>
+    <option value="2">Layer -3</option>
+    <option value="3">Layer -2</option>
+    <option value="4">Layer -1</option>
+    <option value="5"selected>Layer 0</option>
+    <option value="6">Layer 1</option>
+    <option value="7">Layer 2</option>
+    <option value="8">Layer 3</option>
+    <option value="9">Layer 4</option>
+    <option value="10">Layer 5</option>
+  </select>
+
+  <div id="mapContainer" style="display: none;">
+    <h2 id="mapTitle"></h2>
+  </div>
+
+  
+  <div id="saveLoadContainer">
+    <button id="saveButton" class="tooltip-button" data-tooltip="Save Map"></button>
+    <button id="loadButton" class="tooltip-button" data-tooltip="Load Map"></button>
+    <button id="addRoomButton" class="tooltip-button" data-tooltip="Add Room"></button>
+  </div>
+  
+
+  <div id="zoomContainer">
+    <button id="zoomInButton"></button>
+    <button id="zoomOutButton"></button>
+  </div>
+
+  <div id="clearMapContainer">
+    <button id="clearMapButton" class="tooltip-button" data-tooltip="Clear Map"></button>
+  </div>   
+    
+
+  <div id="loadingMessage">Loading...</div>
+
+  <div id="addRoomModal" style="display: none;">
+    <div id="modalContent" style="background: #8d9fab; padding: 20px; border-radius: 5px; width: 300px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+      <h3>Add a New Room </h3>
+      <label for="roomName">Room Name:</label>
+      <input type="text" id="roomName"  style="font-family: gawaa; font-size: 20px"><br><br>
+  
+      <button id="submitRoomButton" style="font-family: gawaa; font-size: 18px;">Add Room</button>
+      <button id="closeModalButton" style="font-family: gawaa; font-size: 18px;">Cancel</button>
+    </div>
+  </div>
+
+  <button id="cancelLineCreationButton"></button>
+
+
+  <script src="renderer.js"></script>
+  <script src="renderer2.js"></script>
+  <script>
+        const toggleButton = document.getElementById('toggleViewButton');
+        const zoomContainer = document.getElementById('zoomContainer');
+        const saveLoadContainer = document.getElementById('saveLoadContainer');
+        const clearMapContainer = document.getElementById('clearMapContainer');
+
+        zoomContainer.style.display = 'none'; 
+        saveLoadContainer.style.display = 'none';
+        clearMapContainer.style.display = 'none';
+
+        function toggleMapView() {
+  if (mapContainer.style.display === 'none') {
+    mapContainer.style.display = 'block';
+    toggleButton.innerText = 'Return to Game';
+    saveLoadContainer.style.display = 'flex'; 
+    zoomContainer.style.display = 'flex'; 
+    clearMapContainer.style.display = 'flex';
+
+  } else {
+    mapContainer.style.display = 'none';
+    toggleButton.innerText = 'Show Map';
+    saveLoadContainer.style.display = 'none'; 
+    zoomContainer.style.display = 'none'; 
+    clearMapContainer.style.display = 'none';
+
+  }
+}
+
+toggleButton.addEventListener('click', toggleMapView);
+
+// ESC key shortcut
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    toggleMapView();
+  }
+});
+
+    // Zoom in and out functionality
+    const zoomInButton = document.getElementById('zoomInButton');
+    const zoomOutButton = document.getElementById('zoomOutButton');
+    let scale = 1;
+
+    zoomInButton.addEventListener('click', () => {
+      scale += 0.1;
+      mapSvg.style.transform = `scale(${scale})`;
+    });
+
+    zoomOutButton.addEventListener('click', () => {
+      scale -= 0.1;
+      if (scale < 0.1) scale = 0.1; 
+      mapSvg.style.transform = `scale(${scale})`;
+    });
+
+
+  </script>
+  
+</body>
+</html>
